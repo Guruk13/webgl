@@ -24,14 +24,26 @@ const Scene = {
 
 		Scene.customAnimation();
 
-		if (Scene.vars.goldGroup !== undefined) {
-			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.goldGroup.children, true);
+		if (Scene.vars.Moroder !== undefined) {
+			// utiliser optionalTarget : pour eviter ca 
 
+
+			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true);
+
+			Scene.vars.turn = null;
+			let which = null;
 			if (intersects.length > 0) {
+				Scene.vars.turn = true;
+				Scene.vars.Which = intersects[0].object;
+				console.log(intersects);
 				Scene.vars.animSpeed = 0.05;
 			} else {
+				Scene.vars.turn = false;
+				Scene.vars.Which = null;
 				Scene.vars.animSpeed = -0.05;
 			}
+
+
 
 			// let mouse = new THREE.Vector3(Scene.vars.mouse.x, Scene.vars.mouse.y, 0);
 			// mouse.unproject(Scene.vars.camera);
@@ -59,39 +71,23 @@ const Scene = {
 
 		vars.animPercent = vars.animPercent + vars.animSpeed;
 
-		if (vars.animPercent < 0) {
-			vars.animPercent = 0;
-			return;
-		}
-		if (vars.animPercent > 1) {
-			vars.animPercent = 1;
-			return;
+		if (vars.turn && vars.Which != null ) {
+			vars.Which.rotation.y = Math.PI / percent;
 		}
 
-		if (vars.animPercent <= 0.33) {
-			Scene.vars.plaquette.position.z = 45 + (75 * vars.animPercent);
-			Scene.vars.texte.position.z = 45 + (150 * vars.animPercent);
-		}
 
-		if (vars.animPercent >= 0.20 && vars.animPercent <= 0.75) {
-			let percent = (vars.animPercent - 0.2) / 0.55;
-			vars.socle1.position.x = 25 * percent;
-			vars.socle2.position.x = -25 * percent;
-			vars.logo.position.x = 45 + 50 * percent;
-			vars.logo2.position.x = -45 - 50 * percent;
-		} else if (vars.animPercent < 0.20) {
-			vars.socle1.position.x = 0;
-			vars.socle2.position.x = 0;
-			vars.logo.position.x = 45;
-			vars.logo2.position.x = -45;
-		}
 
 		if (vars.animPercent >= 0.40) {
 			let percent = (vars.animPercent - 0.4) / 0.6;
 			vars.statuette.position.y = 50 * percent;
+
+
+
 		} else if (vars.animPercent < 0.70) {
 			vars.statuette.position.y = 0;
 		}
+
+
 	},
 	loadFBX: (file, scale, position, rotation, color, namespace, callback) => {
 		let vars = Scene.vars;
@@ -218,7 +214,7 @@ const Scene = {
 
 		// ajout de la caméra
 		vars.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-		vars.camera.position.set(-1.5, 210, 572);
+		vars.camera.position.set(50, 500, 1000);
 
 		// ajout de la lumière
 		const lightIntensityHemisphere = .5;
@@ -293,17 +289,10 @@ const Scene = {
 		vars.scene.add(shadowPlane);
 
 		// ajout de la texture helper du sol
-		// let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
-		// grid.material.opacity = 0.2;
-		// grid.material.transparent = true;
-		// vars.scene.add(grid);
-
-		// ajout de la sphère
-		let geometry = new THREE.SphereGeometry(1000, 32, 32);
-		let material = new THREE.MeshPhongMaterial({ color: new THREE.Color(0xFFFFFF) });
-		material.side = THREE.DoubleSide;
-		let sphere = new THREE.Mesh(geometry, material);
-		vars.scene.add(sphere);
+		let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
+		grid.material.opacity = 0.2;
+		grid.material.transparent = true;
+		vars.scene.add(grid);
 
 		vars.texture = new THREE.TextureLoader().load('./texture/marbre.jpg');
 
@@ -313,63 +302,45 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		Scene.loadFBX("Logo_Feelity.FBX", 10, [45, 22, 0], [0, 0, 0], 0xFFFFFF, 'logo', () => {
-			Scene.loadFBX("SimpleCd.FBX", 10, [90, 44, 0], [0, 0, 0], 0xFFFFFF, 'record1', () => {
+		Scene.loadFBX("Logo_Feelity.FBX", 10, [20, 20, 10], [0, 0, 0], 0xFFFFFF, 'logo', () => {
+			Scene.loadFBX("SM_VinylRecord.fbx", 10, [-500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record1', () => {
 				Scene.loadFBX("Statuette.FBX", 10, [0, 0, 0], [0, 0, 0], 0xFFD700, 'statuette', () => {
-					Scene.loadFBX("Socle_Partie1.FBX", 10, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'socle1', () => {
-						Scene.loadFBX("Socle_Partie2.FBX", 10, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'socle2', () => {
+					Scene.loadFBX("SM_VinylRecord.fbx", 10, [0, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record2', () => {
+						Scene.loadFBX("SM_VinylRecord.fbx", 10, [500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record3', () => {
 							Scene.loadFBX("Plaquette.FBX", 10, [0, 4, 45], [0, 0, 0], 0xFFFFFF, 'plaquette', () => {
 								Scene.loadText(Scene.vars.text, 10, [0, 23, 52], [0, 0, 0], 0x1A1A1A, "texte", () => {
 
 									let vars = Scene.vars;
 
 									let gold = new THREE.Group();
-									gold.add(vars.record1);
-									gold.add(vars.socle2);
 									gold.add(vars.statuette);
-									gold.add(vars.logo);
-									gold.add(vars.texte);
-									gold.add(vars.plaquette);
 
-									let logo2 = vars.logo.clone();
-									logo2.rotation.z = Math.PI;
-									logo2.position.x = -45;
-									vars.logo2 = logo2;
-									gold.add(logo2);
-									gold.position.z = -50;
-									gold.position.y = 10;
+
 									vars.scene.add(gold);
 									vars.goldGroup = gold;
 
-									let silver = gold.clone();
-									silver.position.set(-200, 10, 0);
-									silver.rotation.y = Math.PI / 4;
-									silver.children[2].traverse(node => {
-										if (node.isMesh) {
-											node.material = new THREE.MeshStandardMaterial({
-												color: new THREE.Color(0xC0C0C0),
-												metalness: .6,
-												roughness: .3
-											})
-										}
-									});
-									vars.scene.add(silver);
-									vars.silverGroup = silver;
 
-									let bronze = gold.clone();
-									bronze.position.set(200, 10, 0);
-									bronze.rotation.y = -Math.PI / 4;
-									bronze.children[2].traverse(node => {
-										if (node.isMesh) {
-											node.material = new THREE.MeshStandardMaterial({
-												color: new THREE.Color(0xCD7F32),
-												metalness: .6,
-												roughness: .3
-											})
-										}
-									});
-									vars.scene.add(bronze);
-									vars.bronzeGroup = bronze;
+
+									let moroder = new THREE.Group();
+									moroder.add(vars.record1);
+
+									let contact = new THREE.Group();
+									contact.add(vars.record2);
+
+									let gameoflove = new THREE.Group();
+									gameoflove.add(vars.record3);
+
+
+
+									vars.scene.add(gameoflove);
+									vars.scene.add(moroder);
+									vars.scene.add(contact);
+
+									vars.Contact = contact;
+									vars.Moroder = moroder;
+									vars.GameOfLove = gameoflove;
+
+
 
 									let elem = document.querySelector('#loading');
 									elem.parentNode.removeChild(elem);
@@ -383,12 +354,7 @@ const Scene = {
 
 		// ajout des controles
 		vars.controls = new OrbitControls(vars.camera, vars.renderer.domElement);
-		vars.controls.minDistance = 300;
-		vars.controls.maxDistance = 600;
-		vars.controls.minPolarAngle = Math.PI / 4;
-		vars.controls.maxPolarAngle = Math.PI / 2;
-		vars.controls.minAzimuthAngle = - Math.PI / 4;
-		vars.controls.maxAzimuthAngle = Math.PI / 4;
+
 		vars.controls.target.set(0, 100, 0);
 		vars.controls.update();
 

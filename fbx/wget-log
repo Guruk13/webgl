@@ -1,15 +1,0 @@
---2020-01-13 20:00:43--  https://free3d.com/dl-files.php?p=51a5120a46e0dad66bc84834
-Resolving free3d.com (free3d.com)... 104.26.11.133, 104.26.10.133, 2606:4700:20::681a:b85, ...
-Connecting to free3d.com (free3d.com)|104.26.11.133|:443... connected.
-HTTP request sent, awaiting response... 301 Moved Permanently
-Location: /3d-model/music-cd-48882.html [following]
---2020-01-13 20:00:56--  https://free3d.com/3d-model/music-cd-48882.html
-Reusing existing connection to free3d.com:443.
-HTTP request sent, awaiting response... 200 OK
-Length: unspecified [text/html]
-Saving to: ‘dl-files.php?p=51a5120a46e0dad66bc84834’
-
-          dl-files.     [<=>                 ]       0  --.-KB/s                        dl-files.p     [ <=>                ]  36,94K   141KB/s                       dl-files.ph     [  <=>               ]  40,95K  33,7KB/s                      dl-files.php     [   <=>              ]  46,30K  32,3KB/s                     dl-files.php?     [    <=>             ]  54,02K  29,5KB/s                    dl-files.php?p     [     <=>            ] 106,59K  11,6KB/s               dl-files.php?p=51a5     [      <=>           ] 120,09K  13,0KB/s    in 9,2s    
-
-2020-01-13 20:01:08 (13,0 KB/s) - ‘dl-files.php?p=51a5120a46e0dad66bc84834’ saved [122972]
-
