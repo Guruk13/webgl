@@ -26,16 +26,28 @@ const Scene = {
 
 		if (Scene.vars.Moroder !== undefined) {
 			// utiliser optionalTarget : pour eviter ca 
+			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.children, true);
+			
 
+			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true)){
+				 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true);
+			}
 
-			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true);
+			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.GameOfLove.children, true)){
+				 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.GameOfLove.children, true);
+			}
+
+			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.Contact.children, true)){
+					 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Contact.children, true);
+			}
+			console.log(intersects);
+
 
 			Scene.vars.turn = null;
 			let which = null;
 			if (intersects.length > 0) {
 				Scene.vars.turn = true;
 				Scene.vars.Which = intersects[0].object;
-				console.log(intersects);
 				Scene.vars.animSpeed = 0.05;
 			} else {
 				Scene.vars.turn = false;
@@ -70,9 +82,10 @@ const Scene = {
 		}
 
 		vars.animPercent = vars.animPercent + vars.animSpeed;
+		let percent = (vars.animPercent - 0.4) / 0.6;
 
 		if (vars.turn && vars.Which != null ) {
-			vars.Which.rotation.y = Math.PI / percent;
+			vars.Which.rotation.x = Math.PI / percent;
 		}
 
 
@@ -339,6 +352,9 @@ const Scene = {
 									vars.Contact = contact;
 									vars.Moroder = moroder;
 									vars.GameOfLove = gameoflove;
+
+
+
 
 
 
