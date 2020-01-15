@@ -7,66 +7,62 @@ const Scene = {
 	vars: {
 		container: null,
 		scene: null,
+		records: null,
 		renderer: null,
 		camera: null,
 		stats: null,
 		controls: null,
 		texture: null,
 		mouse: new THREE.Vector2(),
+		INTERSECTED: null,
 		raycaster: new THREE.Raycaster(),
 		animSpeed: null,
 		animPercent: 0.00,
 		text: "DAWIN"
 	},
 	animate: () => {
+		Scene.vars.camera.updateMatrixWorld();
 		requestAnimationFrame(Scene.animate);
+		console.log(Scene.vars.records);
 		Scene.vars.raycaster.setFromCamera(Scene.vars.mouse, Scene.vars.camera);
 
 		Scene.customAnimation();
 
-		if (Scene.vars.Moroder !== undefined) {
-			// utiliser optionalTarget : pour eviter ca 
-			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.children, true);
-			
+		let intersects = [];
 
-			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true)){
-				 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Moroder.children, true);
+
+
+		if (intersects.length > 0) {
+
+			if (Scene.vars.INTERSECTED != intersects[0].object) {
+
+				if (Scene.vars.INTERSECTED) Scene.vars.INTERSECTED.material.emissive.setHex(Scene.vars.INTERSECTED.currentHex);
+
+				Scene.vars.Scene.vars.INTERSECTED = intersects[0].object;
+
+
 			}
 
-			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.GameOfLove.children, true)){
-				 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.GameOfLove.children, true);
-			}
+		} else {
+			if (Scene.vars.INTERSECTED) Scene.vars.INTERSECTED.material.emissive.setHex(Scene.vars.INTERSECTED.currentHex);
 
-			if ( Scene.vars.raycaster.intersectObjects(Scene.vars.Contact.children, true)){
-					 intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Contact.children, true);
-			}
-			console.log(intersects);
+			Scene.vars.INTERSECTED = null;
 
-
-			Scene.vars.turn = null;
-			let which = null;
-			if (intersects.length > 0) {
-				Scene.vars.turn = true;
-				Scene.vars.Which = intersects[0].object;
-				Scene.vars.animSpeed = 0.05;
-			} else {
-				Scene.vars.turn = false;
-				Scene.vars.Which = null;
-				Scene.vars.animSpeed = -0.05;
-			}
-
-
-
-			// let mouse = new THREE.Vector3(Scene.vars.mouse.x, Scene.vars.mouse.y, 0);
-			// mouse.unproject(Scene.vars.camera);
-
-			// let ray = new THREE.Raycaster(Scene.vars.camera.position, mouse.sub(Scene.vars.camera.position).normalize()); 
-			// let intersects = ray.intersectObjects(Scene.vars.goldGroup.children, true);
-			// if(intersects.length > 0) {
-			// 	var arrow = new THREE.ArrowHelper(ray.ray.direction, ray.ray.origin, 1000, 0xFF00000);
-			// 	Scene.vars.scene.add(arrow);
-			// }
 		}
+
+
+
+
+		Scene.vars.turn = null;
+
+		if (intersects.length > 0) {
+			Scene.vars.turn = true;
+			Scene.vars.animSpeed = 0.05;
+		} else {
+			Scene.vars.turn = false;
+			Scene.vars.animSpeed = -0.05;
+		}
+
 
 		Scene.render();
 	},
@@ -84,25 +80,25 @@ const Scene = {
 		vars.animPercent = vars.animPercent + vars.animSpeed;
 		let percent = (vars.animPercent - 0.4) / 0.6;
 
-		if (vars.turn && vars.Which != null ) {
-			vars.Which.rotation.x = Math.PI / percent;
+		if (vars.turn && vars.Scene.vars.INTERSECTED != null) {
+			vars.Scene.vars.INTERSECTED.rotation.x = Math.PI / percent;
 		}
 
 
 
 		if (vars.animPercent >= 0.40) {
 			let percent = (vars.animPercent - 0.4) / 0.6;
-			vars.statuette.position.y = 50 * percent;
+			//vars.statuette.position.y = 50 * percent;
 
 
 
 		} else if (vars.animPercent < 0.70) {
-			vars.statuette.position.y = 0;
+			//vars.statuette.position.y = 0;
 		}
 
 
 	},
-	loadFBX: (file, scale, position, rotation, color, namespace, callback) => {
+	loadFBX: (file, scale, position, rotation, ) => {
 		let vars = Scene.vars;
 		let loader = new FBXLoader();
 
@@ -110,88 +106,39 @@ const Scene = {
 			return;
 		}
 
-		loader.load('./fbx/' + file, (object) => {
+		let positionx = -500
+		for (let i = 0; i <= 2; i++) {
+			loader.load('./fbx/' + file, (object) => {
 
-			object.traverse((child) => {
-				if (child.isMesh) {
 
-					child.castShadow = true;
-					child.receiveShadow = true;
+				//console.log("loading captain")
+				position.x = positionx;
+				object.position.y = position[1];
+				object.position.z = position[2];
 
-					if (namespace === "plaquette") {
-						child.material = new THREE.MeshBasicMaterial({
-							map: Scene.vars.texture
-						});
-					}
+				object.rotation.x = rotation[0];
+				object.rotation.y = rotation[1];
+				object.rotation.z = rotation[2];
 
-					if (namespace === "statuette") {
-						child.material = new THREE.MeshStandardMaterial({
-							color: new THREE.Color(color),
-							roughness: .3,
-							metalness: .6
-						})
-					}
+				object.scale.x = object.scale.y = object.scale.z = scale;
+				Scene.vars["record".$i] = mesh;
+				console.log("tell that bitch be cool ");
+				Scene.add(object);
 
-					child.material.color = new THREE.Color(color);
-				}
 			});
-
-			object.position.x = position[0];
-			object.position.y = position[1];
-			object.position.z = position[2];
-
-			object.rotation.x = rotation[0];
-			object.rotation.y = rotation[1];
-			object.rotation.z = rotation[2];
-
-			object.scale.x = object.scale.y = object.scale.z = scale;
-			Scene.vars[namespace] = object;
-
-			callback();
-		});
-
-	},
-	loadText: (text, scale, position, rotation, color, namespace, callback) => {
-		let loader = new THREE.FontLoader();
-
-		if (text === undefined || text === "") {
-			return;
+			positionx += 500;
 		}
 
-		loader.load('./vendor/three.js-master/examples/fonts/helvetiker_regular.typeface.json', (font) => {
-			let geometry = new THREE.TextGeometry(text, {
-				font,
-				size: 1,
-				height: 0.1,
-				curveSegments: 1,
-				bevelEnabled: false
-			});
 
-			geometry.computeBoundingBox();
-			let offset = geometry.boundingBox.getCenter().negate();
-			geometry.translate(offset.x, offset.y, offset.z);
 
-			let material = new THREE.MeshBasicMaterial({
-				color: new THREE.Color(color)
-			});
 
-			let mesh = new THREE.Mesh(geometry, material);
 
-			mesh.position.x = position[0];
-			mesh.position.y = position[1];
-			mesh.position.z = position[2];
 
-			mesh.rotation.x = rotation[0];
-			mesh.rotation.y = rotation[1];
-			mesh.rotation.z = rotation[2];
 
-			mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
-			Scene.vars[namespace] = mesh;
-
-			callback();
-		});
 	},
+
+
 	onWindowResize: () => {
 		let vars = Scene.vars;
 		vars.camera.aspect = window.innerWidth / window.innerHeight;
@@ -315,58 +262,7 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		Scene.loadFBX("Logo_Feelity.FBX", 10, [20, 20, 10], [0, 0, 0], 0xFFFFFF, 'logo', () => {
-			Scene.loadFBX("SM_VinylRecord.fbx", 10, [-500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record1', () => {
-				Scene.loadFBX("Statuette.FBX", 10, [0, 0, 0], [0, 0, 0], 0xFFD700, 'statuette', () => {
-					Scene.loadFBX("SM_VinylRecord.fbx", 10, [0, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record2', () => {
-						Scene.loadFBX("SM_VinylRecord.fbx", 10, [500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record3', () => {
-							Scene.loadFBX("Plaquette.FBX", 10, [0, 4, 45], [0, 0, 0], 0xFFFFFF, 'plaquette', () => {
-								Scene.loadText(Scene.vars.text, 10, [0, 23, 52], [0, 0, 0], 0x1A1A1A, "texte", () => {
-
-									let vars = Scene.vars;
-
-									let gold = new THREE.Group();
-									gold.add(vars.statuette);
-
-
-									vars.scene.add(gold);
-									vars.goldGroup = gold;
-
-
-
-									let moroder = new THREE.Group();
-									moroder.add(vars.record1);
-
-									let contact = new THREE.Group();
-									contact.add(vars.record2);
-
-									let gameoflove = new THREE.Group();
-									gameoflove.add(vars.record3);
-
-
-
-									vars.scene.add(gameoflove);
-									vars.scene.add(moroder);
-									vars.scene.add(contact);
-
-									vars.Contact = contact;
-									vars.Moroder = moroder;
-									vars.GameOfLove = gameoflove;
-
-
-
-
-
-
-									let elem = document.querySelector('#loading');
-									elem.parentNode.removeChild(elem);
-								});
-							});
-						});
-					});
-				});
-			});
-		});
+		Scene.loadFBX("SM_VinylRecord.fbx", 10, [20, 20, 10], [0, 0, 0])
 
 		// ajout des controles
 		vars.controls = new OrbitControls(vars.camera, vars.renderer.domElement);
@@ -385,3 +281,5 @@ const Scene = {
 };
 
 Scene.init();
+
+
