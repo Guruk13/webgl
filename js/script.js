@@ -17,7 +17,7 @@ const Scene = {
 		animSpeed: null,
 		animPercent: 0.20,
 		text: "DAWIN",
-		listener: null, 
+		listener: null,
 		audioLoader: null,
 		sound: null,
 		audiofile: null,
@@ -28,22 +28,13 @@ const Scene = {
 
 		Scene.customAnimation();
 
-		if (Scene.vars.Album !== undefined) {
-			// utiliser optionalTarget : pour eviter ca 
+		if (Scene.vars.Album !== undefined) {a 
 			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.Album.children, true);
-
-			//s:console.log(intersects);
-
 			Scene.vars.turn = null;
 
 			if (intersects.length > 0) {
 				Scene.vars.turn = true;
 				Scene.vars.Which = intersects[0].object;
-				/*
-				console.log(Scene.vars.record2.children[0]);
-				console.log('intersect 0th . object ')
-				console.log(intersects[0].object);
-				*/
 				Scene.vars.animSpeed = 0.05;
 			} else {
 				Scene.vars.turn = false;
@@ -53,15 +44,7 @@ const Scene = {
 
 
 
-			// let mouse = new THREE.Vector3(Scene.vars.mouse.x, Scene.vars.mouse.y, 0);
-			// mouse.unproject(Scene.vars.camera);
 
-			// let ray = new THREE.Raycaster(Scene.vars.camera.position, mouse.sub(Scene.vars.camera.position).normalize()); 
-			// let intersects = ray.intersectObjects(Scene.vars.goldGroup.children, true);
-			// if(intersects.length > 0) {
-			// 	var arrow = new THREE.ArrowHelper(ray.ray.direction, ray.ray.origin, 1000, 0xFF00000);
-			// 	Scene.vars.scene.add(arrow);
-			// }
 		}
 
 		Scene.render();
@@ -73,21 +56,12 @@ const Scene = {
 
 
 	loadMusic: () => {
-		let vars = Scene.vars;
-		vars.audioLoader.load('albumfolder/moroder.ogg', function (buffer) {
-			vars.sound.setBuffer(buffer); 
-			vars.sound.setLoop(true);
-			vars.sound.setVolume(0.5); 
-			vars.sound.play();
-		});
-		console.log("hol horse your the worst ");
 
-
-
-
-
-
-
+		//gerer le lancement , la pause et la reprise des musique;
+		// en survolant un disque on charge la musique 
+		// j'ai eu du mal avec ca car les fichiers demusiques sont lourd et font planter le navigateur 
+		// j'aurais du trouver un moyen de charger les musiques dans des audioloader séparé et avant toute
+		//interaction utilisateur 
 
 	},
 	customAnimation: () => {
@@ -97,39 +71,37 @@ const Scene = {
 			return;
 		}
 
-		vars.animPercent = vars.animPercent + 0.5;
+		vars.animPercent = vars.animPercent + vars.animSpeed;
 		let percent = (vars.animPercent - 0.2) / 0.55;
-		if (vars.audiofile !== undefined) {
-			vars.audiofile = "";
-		}
 
 		if (vars.turn && vars.Which != null) {
 
-
+			// L'animation de rotation est deggressive avec le pourcenntage  
 			vars.Which.rotation.x = Math.PI / percent;
 			if (vars.Which === Scene.vars.record1.children[0]) {
-				vars.audiofile = "albumfolder/moroder.ogg";
-				Scene.loadMusic();
-
+				console.log("playmoroder")
 			}
 			if (vars.Which === Scene.vars.record2.children[0]) {
 				vars.audiofile = "Contact";
+				console.log("playcontact")
 			}
 			if (vars.Which === Scene.vars.record3.children[0]) {
-				vars.audiofile = "Touch";
+				console.log("playtouch")
+
 			}
 
 		} else {
-			vars.audiofile = "";
+	
 
 		}
 		if (vars.turn) {
-			console.log("playing");
-
+			// start the music
 		}
 		else {
-
+			//	console.log("stop the music")
 		}
+
+
 
 
 
@@ -339,50 +311,43 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		Scene.loadFBX("Logo_Feelity.FBX", 10, [20, 20, 10], [0, 0, 0], 0xFFFFFF, 'logo', () => {
-			Scene.loadFBX("SM_VinylRecord.fbx", 10, [-500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record1', () => {
-				Scene.loadFBX("Statuette.FBX", 10, [0, 0, 0], [0, 0, 0], 0xFFD700, 'statuette', () => {
-					Scene.loadFBX("SM_VinylRecord.fbx", 10, [0, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record2', () => {
-						Scene.loadFBX("SM_VinylRecord.fbx", 10, [500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record3', () => {
-							Scene.loadFBX("Plaquette.FBX", 10, [0, 4, 45], [0, 0, 0], 0xFFFFFF, 'plaquette', () => {
-								Scene.loadText(Scene.vars.text, 10, [0, 23, 52], [0, 0, 0], 0x1A1A1A, "texte", () => {
+		Scene.loadFBX("SM_VinylRecord.fbx", 10, [-500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record1', () => {
+			Scene.loadFBX("SM_VinylRecord.fbx", 10, [0, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record2', () => {
+				Scene.loadFBX("SM_VinylRecord.fbx", 10, [500, 100, 0], [0, 0, Math.PI / 2], 0xFFFFFF, 'record3', () => {
 
-									let vars = Scene.vars;
-
-									let gold = new THREE.Group();
-									gold.add(vars.statuette);
-
-									vars.scene.add(gold);
-									vars.goldGroup = gold;
+					let vars = Scene.vars;
+					let album = new THREE.Group();
+					album.add(vars.record1);
+					album.add(vars.record2);
+					album.add(vars.record3);
+					vars.scene.add(album);
+					vars.Album = album;
 
 
-									let album = new THREE.Group();
-									album.add(vars.record1);
-									album.add(vars.record2);
-									album.add(vars.record3);
-									vars.scene.add(album);
-									vars.Album = album;
+					// create an AudioListener and add it to the camera
+					vars.listener = new THREE.AudioListener();
+					vars.camera.add(vars.listener);
+					// create a global audio source
+					vars.sound = new THREE.Audio(vars.listener);
+					// load a sound and set it as the Audio object's buffer
+					vars.audioLoader = new THREE.AudioLoader();
 
-
-									// create an AudioListener and add it to the camera
-									vars.listener = new THREE.AudioListener();
-									vars.camera.add(vars.listener);
-									// create a global audio source
-									vars.sound = new THREE.Audio(vars.listener);
-									// load a sound and set it as the Audio object's buffer
-									vars.audioLoader = new THREE.AudioLoader();
-
-
-
-									let elem = document.querySelector('#loading');
-									elem.parentNode.removeChild(elem);
-								});
-							});
-						});
+					console.log("let's make some noise");
+					vars.audioLoader.load("albumfolder/moroder.ogg", function (buffer) {
+						vars.sound.setBuffer(buffer);
+						vars.sound.setLoop(true);
+						vars.sound.setVolume(0.5);
+						vars.sound.play();
 					});
+
+
+
+					let elem = document.querySelector('#loading');
+					elem.parentNode.removeChild(elem);
 				});
 			});
 		});
+
 
 		// ajout des controles
 		vars.controls = new OrbitControls(vars.camera, vars.renderer.domElement);
